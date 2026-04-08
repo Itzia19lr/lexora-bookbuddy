@@ -169,10 +169,10 @@ html, body, [class*="css"] { background-color: #141414 !important; color: white;
     font-size: 4rem; font-weight: 900;
     color: rgba(255,255,255,0.12); line-height: 0.9; margin-bottom: -0.5rem;
 }
-[data-testid="stImage"] { display: block; width: 100% !important; }
 [data-testid="stImage"] img {
     width: 100% !important; height: 260px !important;
     object-fit: cover !important; border-radius: 8px !important; display: block;
+    pointer-events: none !important;
 }
 .poster-title {
     font-size: 0.88rem; font-weight: 700; color: white;
@@ -314,6 +314,18 @@ def traducir_descripcion(texto):
         "Traduce al español de México textos de contraportada. Tono natural. Traducción COMPLETA.", 500)
     if not r: r, _ = _google(texto)
     if not r: r = texto
+    st.session_state[k] = r
+    return r
+
+def traducir_titulo(titulo):
+    """Traduce título al español con caché en session_state."""
+    if not titulo or pd.isna(titulo): return titulo
+    k = _ck("t", titulo)
+    if k in st.session_state: return st.session_state[k]
+    r, _ = _openai(
+        f"Traduce este título de libro al español de México. Solo devuelve el título traducido, sin explicaciones ni comillas:\n\n{titulo}",
+        "Eres un traductor. Solo devuelves el título traducido, nada más.", 30)
+    if not r: r = titulo
     st.session_state[k] = r
     return r
 
@@ -514,7 +526,7 @@ def mostrar_home():
         with col:
             st.markdown(f'<div class="rank-number">{rank}</div>', unsafe_allow_html=True)
             mostrar_portada(libro.get('portada_url'), libro.get('genero'), use_container_width=True)
-            t = str(libro['titulo'])
+            t = traducir_titulo(str(libro['titulo']))
             st.markdown(f'<div class="poster-title">{t[:32]}{"…" if len(t)>32 else ""}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="poster-author">{limpiar_texto(str(libro["autor"]))[:26]}</div>', unsafe_allow_html=True)
             if st.button("Ver más", key=f"h_{libro['book_id']}", use_container_width=True):
@@ -564,7 +576,7 @@ def mostrar_catalogo():
     for idx, libro in enumerate(df.itertuples(index=False), start=1):
         with cols[(idx-1) % 5]:
             mostrar_portada(getattr(libro,'portada_url',None), getattr(libro,'genero',None), use_container_width=True)
-            t = str(libro.titulo)
+            t = traducir_titulo(str(libro.titulo))
             st.markdown(f'<div class="poster-title">{t[:32]}{"…" if len(t)>32 else ""}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="poster-author">{limpiar_texto(libro.autor)}</div>', unsafe_allow_html=True)
             if st.button("Ver detalle", key=f"cat_{libro.book_id}", use_container_width=True):
@@ -592,7 +604,7 @@ def mostrar_detalle():
     with c1:
         mostrar_portada(libro.get('portada_url'), libro.get('genero'), width=280)
     with c2:
-        st.markdown(f"## {limpiar_texto(libro['titulo'])}")
+        st.markdown(f"## {traducir_titulo(limpiar_texto(libro['titulo']))}")
         st.markdown(f"**{limpiar_texto(libro['autor'])}**")
         st.divider()
         m1, m2, m3 = st.columns(3)
@@ -713,7 +725,7 @@ def mostrar_resultados():
     for idx, libro in enumerate(res.itertuples(index=False), start=1):
         with cols[idx-1]:
             mostrar_portada(getattr(libro,'portada_url',None), getattr(libro,'genero',None), use_container_width=True)
-            t = str(libro.titulo)
+            t = traducir_titulo(str(libro.titulo))
             st.markdown(f'<div class="poster-title">{t[:32]}{"…" if len(t)>32 else ""}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="poster-author">{limpiar_texto(libro.autor)}</div>', unsafe_allow_html=True)
             with st.expander("Ver detalle"):
