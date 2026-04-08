@@ -17,6 +17,9 @@ try:
 except ImportError:
     DEEP_TRANSLATOR_OK = False
 
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 load_dotenv()
 
 st.set_page_config(
