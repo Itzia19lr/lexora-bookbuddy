@@ -1,0 +1,9 @@
+{
+  "min": 5,
+  "q25": 244,
+  "median": 340,
+  "q75": 463,
+  "max": 3542,
+  "umbral_corto": 300,
+  "umbral_largo": 500
+}

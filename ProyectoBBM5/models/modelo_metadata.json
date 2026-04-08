@@ -1,0 +1,31 @@
+{
+  "nombre_modelo": "Item-Based k-NN (modelo seleccionado)",
+  "justificacion": "El modelo híbrido optimizado convergió a pesos [VS=0, kNN=1, SVD=0], validando k-NN como modelo más robusto metodológicamente",
+  "componentes": {
+    "collaborative": {
+      "tipo": "Item-Based k-Nearest Neighbors",
+      "peso": 1.0,
+      "k": 20,
+      "similitud": "Adjusted cosine similarity"
+    },
+    "content_based": {
+      "tipo": "Vector Space Model + TF-IDF",
+      "peso": 0.0,
+      "descripcion": "Incluido en export para análisis comparativo"
+    }
+  },
+  "desempeño": {
+    "mae": 0.35,
+    "rmse": 0.46,
+    "dataset_test": "20% de 6754 ratings (1349 instancias)",
+    "interpretacion": "Bueno (MAE < 0.5 en escala 1-5)"
+  },
+  "dataset": {
+    "num_libros": 847,
+    "num_usuarios": 500,
+    "num_ratings": 6754,
+    "densidad": "1.59%"
+  },
+  "fecha_entrenamiento": "2026-04-07",
+  "version": "1.0"
+}
