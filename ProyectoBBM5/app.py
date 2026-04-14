@@ -821,10 +821,6 @@ def mostrar_resultados():
             st.markdown(f'<div class="poster-title">{t[:32]}{"…" if len(t)>32 else ""}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="poster-author">{limpiar_texto(libro.autor)}</div>', unsafe_allow_html=True)
             boton_corazon(libro.book_id, f"res_{idx}")
-            if st.button("Ver detalle completo", key=f"det_{libro.book_id}", use_container_width=True):
-                st.session_state.pagina_anterior='resultados'
-                st.session_state.libro_seleccionado=libro.book_id
-                st.session_state.pagina='detalle'; st.rerun()
             with st.expander("Ver detalle"):
                 pags=getattr(libro,'paginas',None)
                 p=int(pags) if pags is not None and pd.notna(pags) else "—"
