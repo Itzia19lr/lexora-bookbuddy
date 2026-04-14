@@ -509,7 +509,7 @@ def generar_explicacion(libro, pref):
 #  SESSION STATE
 # ══════════════════════════════════════════════════════════════════════════
 for k, v in [('pagina','home'),('preferencias',{}),('recomendaciones',None),
-             ('libro_seleccionado',None),('carousel_offset',0),
+             ('libro_seleccionado',None),('pagina_anterior','home'),('carousel_offset',0),
              ('ids_mostrados',set()),('autores_mostrados',set()),
              ('agotado',False),('mi_lista',[])]:
     if k not in st.session_state: st.session_state[k] = v
@@ -581,6 +581,7 @@ def mostrar_home():
             st.markdown(f'<div class="poster-author">{limpiar_texto(str(libro["autor"]))[:26]}</div>', unsafe_allow_html=True)
             boton_corazon(libro['book_id'], "home")
             if st.button("Ver más",key=f"h_{libro['book_id']}",use_container_width=True):
+                st.session_state.pagina_anterior='home'
                 st.session_state.libro_seleccionado=libro['book_id']
                 st.session_state.pagina='detalle'; st.rerun()
     with col_next:
@@ -629,6 +630,7 @@ def mostrar_catalogo():
             st.markdown(f'<div class="poster-author">{limpiar_texto(libro.autor)}</div>', unsafe_allow_html=True)
             boton_corazon(libro.book_id, "cat")
             if st.button("Ver detalle",key=f"cat_{libro.book_id}",use_container_width=True):
+                st.session_state.pagina_anterior='catalogo'
                 st.session_state.libro_seleccionado=libro.book_id
                 st.session_state.pagina='detalle'; st.rerun()
 
@@ -679,6 +681,7 @@ def mostrar_mi_lista():
                 quitar_libro(bid); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
             if st.button("Ver detalle", key=f"lista_{bid}", use_container_width=True):
+                st.session_state.pagina_anterior = 'mi_lista'
                 st.session_state.libro_seleccionado = bid
                 st.session_state.pagina = 'detalle'; st.rerun()
 
@@ -689,13 +692,21 @@ def mostrar_detalle():
     ldf = _libros_reset[_libros_reset['book_id']==bid]
     if ldf.empty:
         st.error("No se encontró el libro.")
-        if st.button("Volver"): st.session_state.pagina='home'; st.rerun()
+        if st.button("← Volver"): st.session_state.pagina=st.session_state.get("pagina_anterior","home"); st.rerun()
         return
     libro = ldf.iloc[0]
     logo_pagina()
-    cb,_ = st.columns([1,6])
+    pagina_anterior = st.session_state.get('pagina_anterior', 'home')
+    labels = {'home': 'Inicio', 'catalogo': 'Catálogo', 'mi_lista': 'Mi lista', 'resultados': 'Recomendaciones'}
+    label_volver = f"← {labels.get(pagina_anterior, 'Inicio')}"
+
+    cb, cb2, _ = st.columns([1.2, 1.2, 5])
     with cb:
-        if st.button("Volver"): st.session_state.pagina='home'; st.rerun()
+        if st.button(label_volver, use_container_width=True):
+            st.session_state.pagina = pagina_anterior; st.rerun()
+    with cb2:
+        if st.button("Inicio", use_container_width=True):
+            st.session_state.pagina = 'home'; st.rerun()
     c1,c2 = st.columns([1,2])
     with c1:
         mostrar_portada(libro.get('portada_url'),libro.get('genero'),width=280)
@@ -806,6 +817,10 @@ def mostrar_resultados():
             st.markdown(f'<div class="poster-title">{t[:32]}{"…" if len(t)>32 else ""}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="poster-author">{limpiar_texto(libro.autor)}</div>', unsafe_allow_html=True)
             boton_corazon(libro.book_id, f"res_{idx}")
+            if st.button("Ver detalle completo", key=f"det_{libro.book_id}", use_container_width=True):
+                st.session_state.pagina_anterior='resultados'
+                st.session_state.libro_seleccionado=libro.book_id
+                st.session_state.pagina='detalle'; st.rerun()
             with st.expander("Ver detalle"):
                 pags=getattr(libro,'paginas',None)
                 p=int(pags) if pags is not None and pd.notna(pags) else "—"
