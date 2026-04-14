@@ -62,26 +62,26 @@ def limpiar_texto(texto):
 
 
 def limpiar_descripcion_legal(texto):
-    """Elimina frases legales/editoriales que Google Books incluye en descripciones."""
     if not texto or pd.isna(texto):
         return texto
-    import re
-    # Patrones legales comunes de Google Books
-    patrones = [
-        r'Copyright\s*©.*?reservados\.?',
-        r'Copyright\s*©.*?reserved\.?',
-        r'©\s*\d{4}.*?reservados\.?',
-        r'©\s*\d{4}.*?reserved\.?',
-        r'Libri\s*GmbH.*?reservados\.?',
-        r'All rights reserved\.?',
-        r'Todos los derechos reservados\.?',
-        r'Derechos reservados\.?',
-        r'Published by.*?\.',
-        r'First published.*?\.',
-        r'Originally published.*?\.',
+    texto = str(texto)
+    # Marcadores que indican inicio de texto legal — cortamos ahí
+    marcadores = [
+        'Copyright ©', 'copyright ©', 'Derechos de autor ©',
+        'derechos de autor ©', '© Libri', '© libri',
+        'Libri GmbH', 'libri gmbh',
+        'All rights reserved', 'Todos los derechos reservados',
+        'Derechos reservados',
+        '- Sitio web del editor', '- sitio web del editor',
+        "- Publisher's website", '- From the publisher',
+        '- Del editor',
     ]
-    for patron in patrones:
-        texto = re.sub(patron, '', texto, flags=re.IGNORECASE | re.DOTALL)
+    for m in marcadores:
+        idx = texto.find(m)
+        if idx != -1:
+            texto = texto[:idx].strip().rstrip('.')
+            if texto:
+                texto = texto + '.'
     return texto.strip()
 
 COLORES_GENERO = {
