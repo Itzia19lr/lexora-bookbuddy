@@ -24,7 +24,7 @@ st.set_page_config(
     page_title="Lexora - Descubre tu próximo libro",
     page_icon="📚",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 def get_api_key():
@@ -141,46 +141,6 @@ def obtener_portada(url, genero=None):
         return str(url).strip()
     return obtener_portada_svg(genero)
 
-def mostrar_portada_con_corazon(url, genero, book_id):
-    """Muestra la portada con el corazón flotando sobre ella."""
-    src     = obtener_portada(url, genero)
-    guardado = book_id in st.session_state.mi_lista
-    corazon  = "♥" if guardado else "♡"
-    color    = "#E50914" if guardado else "rgba(255,255,255,0.85)"
-
-    st.markdown(f"""
-    <div style="position:relative;width:100%;margin-bottom:0">
-      <img src="{src}"
-           style="width:100%;height:260px;object-fit:cover;
-                  border-radius:8px;display:block">
-      <div id="heart_{book_id}"
-           style="position:absolute;top:8px;right:8px;
-                  background:rgba(0,0,0,0.55);border-radius:50%;
-                  width:34px;height:34px;display:flex;align-items:center;
-                  justify-content:center;font-size:17px;color:{color};
-                  pointer-events:none;backdrop-filter:blur(4px)">
-        {corazon}
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Botón invisible que activa el guardado — alineado al ancho de la portada
-    st.markdown("""
-    <style>
-    .heart-trigger div[data-testid="stButton"] > button {
-        background: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        height: 0px !important;
-        min-height: 0px !important;
-        padding: 0 !important;
-        margin-top: -2px !important;
-        width: 100% !important;
-        cursor: pointer !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
 def mostrar_portada(url, genero=None, use_container_width=False, width=None):
     p = obtener_portada(url, genero)
     try:
@@ -238,44 +198,42 @@ html, body, [class*="css"] { background-color: #141414 !important; color: white;
     font-size: 0.82rem; color: #9ca3af; margin-bottom: 0.4rem;
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
-
-/* Botón principal rojo — solo para acciones primarias */
 div[data-testid="stButton"] > button {
     background: #E50914 !important; color: white !important;
     border: none !important; border-radius: 6px !important; font-weight: 600 !important;
 }
 div[data-testid="stButton"] > button:hover { background: #c0070f !important; }
 
-/* Botón corazón — pequeño, discreto, circular */
+/* Botón corazón — discreto, pequeño, no rojo */
 .heart-btn div[data-testid="stButton"] > button {
-    background: rgba(255,255,255,0.08) !important;
-    color: white !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
+    background: rgba(255,255,255,0.07) !important;
+    color: rgba(255,255,255,0.7) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
     border-radius: 20px !important;
     font-size: 0.78rem !important;
     font-weight: 400 !important;
-    padding: 2px 10px !important;
+    padding: 2px 12px !important;
     min-height: 28px !important;
     height: 28px !important;
-    width: auto !important;
-    float: right !important;
+    width: 100% !important;
     margin-top: 4px !important;
 }
 .heart-btn div[data-testid="stButton"] > button:hover {
-    background: rgba(229,9,20,0.25) !important;
-    border-color: #E50914 !important;
+    background: rgba(229,9,20,0.18) !important;
+    border-color: rgba(229,9,20,0.5) !important;
+    color: white !important;
 }
 .heart-saved div[data-testid="stButton"] > button {
-    background: rgba(229,9,20,0.15) !important;
-    color: #E50914 !important;
-    border: 1px solid rgba(229,9,20,0.4) !important;
+    background: rgba(229,9,20,0.12) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(229,9,20,0.35) !important;
     border-radius: 20px !important;
     font-size: 0.78rem !important;
     font-weight: 400 !important;
-    padding: 2px 10px !important;
+    padding: 2px 12px !important;
     min-height: 28px !important;
     height: 28px !important;
-    float: right !important;
+    width: 100% !important;
     margin-top: 4px !important;
 }
 
@@ -292,19 +250,7 @@ div[data-testid="stExpander"] details {
     border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
 }
 div[data-testid="stInfo"] { background: rgba(229,9,20,0.12); color: white; }
-
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background: #0d0d0d !important;
-    border-right: 1px solid rgba(255,255,255,0.07) !important;
-    min-width: 280px !important;
-}
-section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-    padding: 1.2rem 1rem !important;
-}
-/* Quitar botón colapsar sidebar */
-button[data-testid="collapsedControl"] { display: none !important; }
-
+section[data-testid="stSidebar"] { display: none; }
 div[data-testid="stMetric"] {
     background: rgba(255,255,255,0.05); border-radius: 10px; padding: 0.6rem;
 }
@@ -319,6 +265,10 @@ div[data-testid="stMetric"] {
 }
 .agotado-titulo { font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
 .agotado-sub { font-size: 0.9rem; color: #9ca3af; }
+.lista-vacia {
+    text-align: center; padding: 4rem 2rem;
+    color: #6b7280; font-size: 1rem; line-height: 1.8;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -356,7 +306,6 @@ idx_to_book = mapeos['idx_to_book']
 
 _libros_reset = libros_df.reset_index(drop=True)
 bookid_to_row = {row['book_id']: idx for idx, row in _libros_reset.iterrows()}
-
 GENEROS_DISPONIBLES = sorted(_libros_reset['genero'].dropna().unique().tolist())
 
 _COL_ANO = None
@@ -446,7 +395,6 @@ def esta_guardado(book_id):
     return book_id in st.session_state.mi_lista
 
 def boton_corazon(book_id, key_suffix=""):
-    """Corazón pequeño y discreto — no rojo, no grande."""
     guardado = esta_guardado(book_id)
     clase    = "heart-saved" if guardado else "heart-btn"
     label    = "♥ Guardado" if guardado else "♡ Guardar"
@@ -456,65 +404,6 @@ def boton_corazon(book_id, key_suffix=""):
         else: guardar_libro(book_id)
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
-
-def mostrar_sidebar_lista():
-    with st.sidebar:
-        n = len(st.session_state.mi_lista)
-
-        if LOGO_B64:
-            st.markdown(
-                f'<img src="data:image/png;base64,{LOGO_B64}" '
-                f'height="32" style="margin-bottom:0.6rem;opacity:0.9">',
-                unsafe_allow_html=True)
-
-        st.markdown(
-            f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem">'
-            f'<span style="font-size:1rem;font-weight:700;color:white">Mi lista</span>'
-            f'<span style="background:#E50914;color:white;font-size:0.7rem;font-weight:700;'
-            f'border-radius:10px;padding:1px 7px">{n}</span>'
-            f'</div>',
-            unsafe_allow_html=True)
-
-        st.divider()
-
-        if n == 0:
-            st.markdown(
-                '<p style="color:#6b7280;font-size:0.82rem;line-height:1.5">'
-                '♡ &nbsp;Guarda libros con el botón<br>"Guardar" para verlos aquí.</p>',
-                unsafe_allow_html=True)
-            return
-
-        for bid in list(st.session_state.mi_lista):
-            ldf = _libros_reset[_libros_reset['book_id'] == bid]
-            if ldf.empty: continue
-            libro = ldf.iloc[0]
-            t     = titulo_en_espanol(limpiar_texto(str(libro['titulo'])))
-            pags  = libro.get('paginas')
-            p     = int(pags) if pd.notna(pags) else "—"
-
-            ci, cd = st.columns([1, 2])
-            with ci:
-                mostrar_portada(libro.get('portada_url'), libro.get('genero'),
-                                use_container_width=True)
-            with cd:
-                st.markdown(
-                    f'<div style="font-weight:700;font-size:0.8rem;line-height:1.3;'
-                    f'margin-bottom:3px">{t}</div>'
-                    f'<div style="color:#9ca3af;font-size:0.74rem;margin-bottom:3px">'
-                    f'{limpiar_texto(libro["autor"])}</div>'
-                    f'<div style="color:#6b7280;font-size:0.72rem">'
-                    f'{genero_es(libro.get("genero"))} · {p} págs · {get_ano(libro)}</div>',
-                    unsafe_allow_html=True)
-                desc = str(libro['descripcion']) if pd.notna(libro.get('descripcion')) else ""
-                if desc:
-                    with st.expander("Descripción"):
-                        with st.spinner("..."): st.write(traducir_descripcion(desc))
-                st.markdown('<div class="heart-saved">', unsafe_allow_html=True)
-                if st.button("♥ Quitar", key=f"quitar_{bid}"):
-                    quitar_libro(bid); st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-
-            st.divider()
 
 # ══════════════════════════════════════════════════════════════════════════
 #  MODELO
@@ -640,6 +529,12 @@ def mostrar_home():
                  if FONDO_B64 else "background:linear-gradient(135deg,#1a0808 0%,#0a0a1a 100%);")
     logo_hero = (f'<img src="data:image/png;base64,{LOGO_B64}" height="48">'
                  if LOGO_B64 else '<span style="font-size:1.8rem;font-weight:900;">Lexora</span>')
+
+    n_lista = len(st.session_state.mi_lista)
+    badge   = (f' <span style="background:#E50914;color:white;font-size:0.65rem;'
+               f'font-weight:700;border-radius:10px;padding:1px 6px;'
+               f'vertical-align:middle">{n_lista}</span>' if n_lista > 0 else "")
+
     st.markdown(f"""
     <div class="hero-outer">
       <div class="hero-bg" style="{bg_style}"></div>
@@ -651,16 +546,24 @@ def mostrar_home():
           y recibe recomendaciones personalizadas según tu perfil lector.</div>
       </div>
     </div>""", unsafe_allow_html=True)
+
     st.markdown('<div class="hero-btn-row">', unsafe_allow_html=True)
-    bc1, bc2, bc3 = st.columns([1,1,5])
+    bc1, bc2, bc3, bc4 = st.columns([1, 1, 1, 4])
     with bc1:
         if st.button("Personalizar", use_container_width=True):
-            st.session_state.pagina='preguntas'; st.rerun()
+            st.session_state.pagina = 'preguntas'; st.rerun()
     with bc2:
         if st.button("Catálogo", use_container_width=True):
-            st.session_state.pagina='catalogo'; st.rerun()
+            st.session_state.pagina = 'catalogo'; st.rerun()
+    with bc3:
+        # Botón Mi lista con badge si hay guardados
+        label_lista = f"♥ Mi lista" if n_lista == 0 else f"♥ Mi lista ({n_lista})"
+        if st.button(label_lista, use_container_width=True):
+            st.session_state.pagina = 'mi_lista'; st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+
     st.markdown('<div class="section-title">🔥 Las 10 más populares</div>', unsafe_allow_html=True)
+
     col_prev,c1,c2,c3,c4,c5,col_next = st.columns([0.3,1,1,1,1,1,0.3])
     with col_prev:
         st.markdown('<div class="arrow-btn">', unsafe_allow_html=True)
@@ -693,15 +596,19 @@ def mostrar_home():
 def mostrar_catalogo():
     logo_pagina()
     st.markdown('<div class="section-title">Catálogo</div>', unsafe_allow_html=True)
-    col_b,_ = st.columns([1,6])
+    col_b, col_b2, _ = st.columns([1, 1, 5])
     with col_b:
         if st.button("Volver al inicio"): st.session_state.pagina='home'; st.rerun()
+    with col_b2:
+        if st.button("♥ Mi lista"): st.session_state.pagina='mi_lista'; st.rerun()
+
     c1,c2,c3 = st.columns(3)
     with c1:
         generos_es_lista = sorted(set(genero_es(g) for g in GENEROS_DISPONIBLES if genero_es(g)!="—"))
         gf = st.selectbox("Género",["Todos"]+generos_es_lista)
     with c2: ab = st.text_input("Buscar por autor")
     with c3: tb = st.text_input("Buscar por título")
+
     df = _libros_reset.copy()
     if gf!="Todos":
         gen_orig = GENERO_ES_INV.get(gf,gf)
@@ -709,8 +616,10 @@ def mostrar_catalogo():
     if ab: df=df[df['autor'].str.contains(ab,case=False,na=False)]
     if tb: df=df[df['titulo'].str.contains(tb,case=False,na=False)]
     df = df.head(30)
+
     if len(df)==0:
         st.markdown("No se encontraron libros con esos criterios."); return
+
     cols = st.columns(5)
     for idx,libro in enumerate(df.itertuples(index=False),start=1):
         with cols[(idx-1)%5]:
@@ -722,6 +631,56 @@ def mostrar_catalogo():
             if st.button("Ver detalle",key=f"cat_{libro.book_id}",use_container_width=True):
                 st.session_state.libro_seleccionado=libro.book_id
                 st.session_state.pagina='detalle'; st.rerun()
+
+
+def mostrar_mi_lista():
+    logo_pagina()
+    n = len(st.session_state.mi_lista)
+
+    col_b, _ = st.columns([1, 6])
+    with col_b:
+        if st.button("Volver al inicio"): st.session_state.pagina='home'; st.rerun()
+
+    st.markdown(
+        f'<div class="section-title">♥ Mi lista'
+        f'{"&nbsp;&nbsp;<span style=\'font-size:1rem;color:#9ca3af;font-weight:400\'>"+ str(n) +" libros</span>" if n>0 else ""}'
+        f'</div>',
+        unsafe_allow_html=True)
+
+    if n == 0:
+        st.markdown("""
+        <div class="lista-vacia">
+            <div style="font-size:2.5rem;margin-bottom:1rem">♡</div>
+            <div style="font-weight:600;font-size:1.1rem;color:white;margin-bottom:0.5rem">
+                Tu lista está vacía
+            </div>
+            <div>Guarda libros desde el catálogo o las recomendaciones<br>
+            usando el botón <strong>♡ Guardar</strong>.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Explorar catálogo", use_container_width=False):
+            st.session_state.pagina='catalogo'; st.rerun()
+        return
+
+    # Misma grilla que el catálogo
+    cols = st.columns(5)
+    for idx, bid in enumerate(st.session_state.mi_lista, start=1):
+        ldf = _libros_reset[_libros_reset['book_id']==bid]
+        if ldf.empty: continue
+        libro = ldf.iloc[0]
+        with cols[(idx-1)%5]:
+            mostrar_portada(libro.get('portada_url'),libro.get('genero'),use_container_width=True)
+            t = titulo_en_espanol(limpiar_texto(str(libro['titulo'])))
+            st.markdown(f'<div class="poster-title">{t[:32]}{"…" if len(t)>32 else ""}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="poster-author">{limpiar_texto(libro["autor"])}</div>', unsafe_allow_html=True)
+            # En Mi lista el corazón sirve para quitar
+            st.markdown('<div class="heart-saved">', unsafe_allow_html=True)
+            if st.button("♥ Quitar", key=f"quitar_{bid}"):
+                quitar_libro(bid); st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+            if st.button("Ver detalle", key=f"lista_{bid}", use_container_width=True):
+                st.session_state.libro_seleccionado = bid
+                st.session_state.pagina = 'detalle'; st.rerun()
 
 
 def mostrar_detalle():
@@ -855,7 +814,7 @@ def mostrar_resultados():
                 with st.spinner("Traduciendo..."): st.write(traducir_descripcion(desc))
                 st.info(generar_explicacion(libro,st.session_state.preferencias))
     st.divider()
-    r1,r2,r3=st.columns(3)
+    r1,r2,r3 = st.columns(3)
     with r1:
         if st.button("Mostrar otras opciones",use_container_width=True):
             with st.spinner("Buscando..."):
@@ -878,13 +837,13 @@ def mostrar_resultados():
 
 
 def main():
-    mostrar_sidebar_lista()
-    p=st.session_state.pagina
-    if   p=='home':       mostrar_home()
-    elif p=='catalogo':   mostrar_catalogo()
-    elif p=='detalle':    mostrar_detalle()
-    elif p=='preguntas':  mostrar_preguntas()
-    elif p=='resultados': mostrar_resultados()
+    p = st.session_state.pagina
+    if   p == 'home':       mostrar_home()
+    elif p == 'catalogo':   mostrar_catalogo()
+    elif p == 'mi_lista':   mostrar_mi_lista()
+    elif p == 'detalle':    mostrar_detalle()
+    elif p == 'preguntas':  mostrar_preguntas()
+    elif p == 'resultados': mostrar_resultados()
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
