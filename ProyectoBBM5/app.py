@@ -151,8 +151,8 @@ def mostrar_portada(url, genero=None, use_container_width=False, width=None):
 
 st.markdown("""
 <style>
-html, body, [class*="css"] { background-color: #141414 !important; color: white; }
-[data-testid="stAppViewContainer"] { background-color: #141414 !important; }
+html, body, [class*="css"] { background-color: #0F0D0A !important; color: white; }
+[data-testid="stAppViewContainer"] { background-color: #0F0D0A !important; }
 [data-testid="stHeader"] { background: transparent !important; }
 .block-container {
     padding-top: 0 !important; padding-left: 3rem !important;
@@ -165,25 +165,25 @@ html, body, [class*="css"] { background-color: #141414 !important; color: white;
 .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center top; }
 .hero-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.45) 50%,rgba(20,20,20,0.98) 100%);
+    background: linear-gradient(to bottom,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.45) 50%,rgba(15,13,10,0.98) 100%);
 }
 .hero-logo { position: absolute; top: 2rem; left: 3rem; z-index: 3; }
 .hero-logo img { height: 48px; }
 .hero-body { position: absolute; bottom: 2.5rem; left: 3rem; right: 3rem; z-index: 3; }
 .hero-title {
-    font-size: 3.4rem; font-weight: 900; color: white;
+    font-size: 3.4rem; font-weight: 700; color: #F5F0E8; font-family: Georgia, serif;
     line-height: 1.05; margin-bottom: 0.5rem;
     text-shadow: 0 2px 16px rgba(0,0,0,0.9);
 }
 .hero-subtitle {
-    font-size: 1.05rem; color: #e5e7eb; max-width: 640px;
+    font-size: 1.05rem; color: #B8AA96; max-width: 640px;
     text-shadow: 0 1px 8px rgba(0,0,0,0.9); margin-bottom: 0;
 }
 .hero-btn-row { margin-top: 1.2rem; margin-bottom: 0.8rem; }
-.section-title { font-size: 1.5rem; font-weight: 800; color: white; margin: 1.4rem 0 0.8rem 0; }
+.section-title { font-size: 1.5rem; font-weight: 600; color: #C9A84C; letter-spacing: 1px; margin: 1.4rem 0 0.8rem 0; }
 .rank-number {
     font-size: 4rem; font-weight: 900;
-    color: rgba(255,255,255,0.12); line-height: 0.9; margin-bottom: -0.5rem;
+    color: rgba(201,168,76,0.15); line-height: 0.9; margin-bottom: -0.5rem;
 }
 [data-testid="stImage"] img {
     width: 100% !important; height: 260px !important;
@@ -191,24 +191,24 @@ html, body, [class*="css"] { background-color: #141414 !important; color: white;
     pointer-events: none !important;
 }
 .poster-title {
-    font-size: 0.88rem; font-weight: 700; color: white;
+    font-size: 0.88rem; font-weight: 600; color: #E8E0D0;
     height: 2.6rem; margin-top: 0.4rem; line-height: 1.3; overflow: hidden;
 }
 .poster-author {
-    font-size: 0.82rem; color: #9ca3af; margin-bottom: 0.4rem;
+    font-size: 0.82rem; color: #B8AA96; margin-bottom: 0.4rem;
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
 div[data-testid="stButton"] > button {
-    background: #E50914 !important; color: white !important;
+    background: #C9A84C !important; color: #F5F0E8 !important;
     border: none !important; border-radius: 6px !important; font-weight: 600 !important;
 }
-div[data-testid="stButton"] > button:hover { background: #c0070f !important; }
+div[data-testid="stButton"] > button:hover { background: #a8872e !important; }
 
 /* Botón corazón — discreto, pequeño, no rojo */
 .heart-btn div[data-testid="stButton"] > button {
-    background: rgba(255,255,255,0.07) !important;
-    color: rgba(255,255,255,0.7) !important;
-    border: 1px solid rgba(255,255,255,0.12) !important;
+    background: rgba(201,168,76,0.06) !important;
+    color: color: #B8AA96 !important;
+    border: 1px solid rgba(201,168,76,0.15) !important;
     border-radius: 20px !important;
     font-size: 0.78rem !important;
     font-weight: 400 !important;
@@ -219,14 +219,14 @@ div[data-testid="stButton"] > button:hover { background: #c0070f !important; }
     margin-top: 4px !important;
 }
 .heart-btn div[data-testid="stButton"] > button:hover {
-    background: rgba(229,9,20,0.18) !important;
-    border-color: rgba(229,9,20,0.5) !important;
-    color: white !important;
+    background: rgba(201,168,76,0.18) !important;
+    border-color: rgba(201,168,76,0.6) !important;
+    color: #F5F0E8 !important;
 }
 .heart-saved div[data-testid="stButton"] > button {
-    background: rgba(229,9,20,0.12) !important;
-    color: #f87171 !important;
-    border: 1px solid rgba(229,9,20,0.35) !important;
+    background: rgba(201,168,76,0.12) !important;
+    color: #C9A84C !important;
+    border: 1px solid rgba(201,168,76,0.45) !important;
     border-radius: 20px !important;
     font-size: 0.78rem !important;
     font-weight: 400 !important;
@@ -238,36 +238,40 @@ div[data-testid="stButton"] > button:hover { background: #c0070f !important; }
 }
 
 .arrow-btn div[data-testid="stButton"] > button {
-    background: rgba(255,255,255,0.08) !important; font-size: 1.5rem !important;
-    border-radius: 50% !important; border: 1px solid rgba(255,255,255,0.15) !important;
+    background: rgba(201,168,76,0.08) !important; font-size: 1.5rem !important;
+    border-radius: 50% !important; border: 1px solid rgba(201,168,76,0.2) !important;
     width: 44px !important; min-height: 44px !important; padding: 0 !important;
 }
-.arrow-btn div[data-testid="stButton"] > button:hover { background: rgba(255,255,255,0.18) !important; }
-hr { border-color: rgba(255,255,255,0.08) !important; }
-.stMarkdown, .stText, p, label, span, h1, h2, h3 { color: white !important; }
+.arrow-btn div[data-testid="stButton"] > button:hover { background: rgba(201,168,76,0.18) !important; }
+hr { border-color: rgba(201,168,76,0.08) !important; }
+.stMarkdown, .stText, p, label, span, h1, h2, h3 { color: #E8E0D0 !important; }
 div[data-testid="stExpander"] details {
-    background: rgba(255,255,255,0.04);
-    border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(201,168,76,0.04);
+    border-radius: 12px; border: 1px solid rgba(201,168,76,0.06);
 }
-div[data-testid="stInfo"] { background: rgba(229,9,20,0.12); color: white; }
+div[data-testid="stInfo"] { background: rgba(201,168,76,0.12); color: white; }
 section[data-testid="stSidebar"] { display: none; }
 div[data-testid="stMetric"] {
-    background: rgba(255,255,255,0.05); border-radius: 10px; padding: 0.6rem;
+    background: rgba(201,168,76,0.06); border-radius: 10px; padding: 0.6rem;
 }
 .carousel-dots { text-align: center; margin-top: 0.5rem; }
 .dot { display:inline-block; width:8px; height:8px; border-radius:50%;
-       background:rgba(255,255,255,0.25); margin:0 3px; }
-.dot.active { background:#E50914; width:22px; border-radius:4px; }
+       background:rgba(201,168,76,0.25); margin:0 3px; }
+.dot.active { background:#C9A84C; width:22px; border-radius:4px; }
 .page-logo { margin-bottom: 0.8rem; margin-top: 0.6rem; }
 .agotado-box {
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.15);
     border-radius: 12px; padding: 2rem; text-align: center; margin: 1rem 0;
 }
 .agotado-titulo { font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
-.agotado-sub { font-size: 0.9rem; color: #9ca3af; }
+.agotado-sub { font-size: 0.9rem; color: #B8AA96; }
+
+button[data-testid="StyledFullScreenButton"] {
+    display: none !important;
+}
 .lista-vacia {
     text-align: center; padding: 4rem 2rem;
-    color: #6b7280; font-size: 1rem; line-height: 1.8;
+    color: #7A6E62; font-size: 1rem; line-height: 1.8;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -526,12 +530,12 @@ def mostrar_home():
     offset = st.session_state.carousel_offset
     total  = len(top_libros)
     bg_style  = (f"background-image:url('data:image/png;base64,{FONDO_B64}');"
-                 if FONDO_B64 else "background:linear-gradient(135deg,#1a0808 0%,#0a0a1a 100%);")
+                 if FONDO_B64 else "background:linear-gradient(135deg,#1a1208 0%,#0F0D0A 100%);")
     logo_hero = (f'<img src="data:image/png;base64,{LOGO_B64}" height="48">'
                  if LOGO_B64 else '<span style="font-size:1.8rem;font-weight:900;">Lexora</span>')
 
     n_lista = len(st.session_state.mi_lista)
-    badge   = (f' <span style="background:#E50914;color:white;font-size:0.65rem;'
+    badge   = (f' <span style="background:#C9A84C;color:white;font-size:0.65rem;'
                f'font-weight:700;border-radius:10px;padding:1px 6px;'
                f'vertical-align:middle">{n_lista}</span>' if n_lista > 0 else "")
 
@@ -645,7 +649,7 @@ def mostrar_mi_lista():
 
     st.markdown(
         f'<div class="section-title">♥ Mi lista'
-        f'{"&nbsp;&nbsp;<span style=\'font-size:1rem;color:#9ca3af;font-weight:400\'>"+ str(n) +" libros</span>" if n>0 else ""}'
+        f'{"&nbsp;&nbsp;<span style=\'font-size:1rem;color:#B8AA96;font-weight:400\'>"+ str(n) +" libros</span>" if n>0 else ""}'
         f'</div>',
         unsafe_allow_html=True)
 
