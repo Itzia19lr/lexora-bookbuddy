@@ -60,6 +60,30 @@ def limpiar_texto(texto):
     except:
         return texto
 
+
+def limpiar_descripcion_legal(texto):
+    """Elimina frases legales/editoriales que Google Books incluye en descripciones."""
+    if not texto or pd.isna(texto):
+        return texto
+    import re
+    # Patrones legales comunes de Google Books
+    patrones = [
+        r'Copyright\s*©.*?reservados\.?',
+        r'Copyright\s*©.*?reserved\.?',
+        r'©\s*\d{4}.*?reservados\.?',
+        r'©\s*\d{4}.*?reserved\.?',
+        r'Libri\s*GmbH.*?reservados\.?',
+        r'All rights reserved\.?',
+        r'Todos los derechos reservados\.?',
+        r'Derechos reservados\.?',
+        r'Published by.*?\.',
+        r'First published.*?\.',
+        r'Originally published.*?\.',
+    ]
+    for patron in patrones:
+        texto = re.sub(patron, '', texto, flags=re.IGNORECASE | re.DOTALL)
+    return texto.strip()
+
 COLORES_GENERO = {
     "fantasy":            {"bg": "#2d1b69", "accent": "#a78bfa", "label": "Fantasía"},
     "thriller":           {"bg": "#111111", "accent": "#ef4444", "label": "Thriller"},
@@ -358,6 +382,8 @@ def _google_translate(texto):
 
 def traducir_descripcion(texto):
     if not texto or pd.isna(texto): return "Sin descripción disponible."
+    texto = limpiar_descripcion_legal(texto)
+    if not texto: return "Sin descripción disponible."
     k = _ck("d", texto)
     if k in st.session_state: return st.session_state[k]
     r, _ = _openai_call(
