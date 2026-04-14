@@ -391,6 +391,7 @@ def traducir_descripcion(texto):
         "Traduce al español de México textos de contraportada. Tono natural. Traducción COMPLETA.", 500)
     if not r: r, _ = _google_translate(texto)
     if not r: r = texto
+    r = limpiar_descripcion_legal(r)
     st.session_state[k] = r
     return r
 
