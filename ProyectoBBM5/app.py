@@ -49,12 +49,12 @@ def limpiar_texto(texto):
     if not texto or pd.isna(texto):
         return ""
     texto = str(texto)
-    try:
-        corregido = texto.encode('latin-1').decode('utf-8')
-        if corregido.isprintable():
-            texto = corregido
-    except:
-        pass
+    for _ in range(3):
+        try:
+            nuevo = texto.encode('latin-1').decode('utf-8')
+            texto = nuevo
+        except:
+            break
     try:
         return unicodedata.normalize('NFC', texto)
     except:
@@ -93,6 +93,27 @@ COLORES_GENERO = {
 }
 COLOR_FALLBACK = {"bg": "#1e293b", "accent": "#94a3b8", "label": "Libro"}
 
+GENERO_ES = {
+    "fantasy": "Fantasía", "thriller": "Thriller", "mystery": "Misterio",
+    "romance": "Romance", "horror": "Terror", "science fiction": "Ciencia Ficción",
+    "science+fiction": "Ciencia Ficción", "fiction": "Ficción",
+    "literary fiction": "Ficción Literaria", "contemporary": "Contemporáneo",
+    "historical fiction": "Ficción Histórica", "historical+fiction": "Ficción Histórica",
+    "adventure": "Aventura", "young adult": "Jóvenes Adultos", "young+adult": "Jóvenes Adultos",
+    "history": "Historia", "philosophy": "Filosofía", "psychology": "Psicología",
+    "biography": "Biografía", "business": "Negocios", "memoir": "Memorias",
+    "self help": "Autoayuda", "self-help": "Autoayuda", "science": "Ciencia",
+    "true crime": "Crimen Real", "true+crime": "Crimen Real",
+    "detective": "Detective", "suspense": "Suspenso", "crime": "Crimen",
+    "historical fiction": "Ficción Histórica", "historical+fiction": "Ficción Histórica",
+}
+
+GENERO_ES_INV = {v: k for k, v in GENERO_ES.items()}
+
+def genero_es(g):
+    if not g or pd.isna(g): return "—"
+    return GENERO_ES.get(str(g).strip().lower(), str(g).title())
+
 def crear_svg_portada(label, bg, accent):
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420">
   <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
@@ -113,8 +134,7 @@ def obtener_portada_svg(genero):
     if genero:
         k   = str(genero).strip().lower()
         cfg = COLORES_GENERO.get(k) or COLORES_GENERO.get(k.replace(' ', '+'))
-        if cfg:
-            return crear_svg_portada(cfg["label"], cfg["bg"], cfg["accent"])
+        if cfg: return crear_svg_portada(cfg["label"], cfg["bg"], cfg["accent"])
     c = COLOR_FALLBACK
     return crear_svg_portada(c["label"], c["bg"], c["accent"])
 
@@ -126,10 +146,8 @@ def obtener_portada(url, genero=None):
 def mostrar_portada(url, genero=None, use_container_width=False, width=None):
     p = obtener_portada(url, genero)
     try:
-        if width:
-            st.image(p, width=width)
-        else:
-            st.image(p, use_container_width=use_container_width)
+        if width: st.image(p, width=width)
+        else: st.image(p, use_container_width=use_container_width)
     except:
         st.image(obtener_portada_svg(genero), use_container_width=use_container_width)
 
@@ -200,7 +218,11 @@ div[data-testid="stExpander"] details {
     border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
 }
 div[data-testid="stInfo"] { background: rgba(229,9,20,0.12); color: white; }
-section[data-testid="stSidebar"] { display: none; }
+section[data-testid="stSidebar"] {
+    display: block !important;
+    background: #0f0f0f !important;
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
+}
 div[data-testid="stMetric"] {
     background: rgba(255,255,255,0.05); border-radius: 10px; padding: 0.6rem;
 }
@@ -215,6 +237,13 @@ div[data-testid="stMetric"] {
 }
 .agotado-titulo { font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
 .agotado-sub { font-size: 0.9rem; color: #9ca3af; }
+.libro-guardado-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -258,6 +287,11 @@ for _c in _libros_reset.columns:
     if _c.strip().lower() in ('ano', 'año', 'ano_publicacion', 'año_publicacion'):
         _COL_ANO = _c
         break
+
+# Géneros disponibles directo del CSV — ordenados y sin duplicados
+GENEROS_DISPONIBLES = sorted(
+    _libros_reset['genero'].dropna().unique().tolist()
+)
 
 def get_ano(libro):
     if _COL_ANO:
@@ -321,30 +355,10 @@ def titulo_en_espanol(titulo):
 Si el libro tiene traducción oficial publicada en Latinoamérica o España, devuelve esa traducción.
 Si el título es un nombre propio, palabra inventada, término sin traducción natural o no tienes certeza, devuelve el título original.
 Solo devuelve el título, sin explicaciones ni puntuación extra."""
-
     r, _ = _openai_call(titulo, system, max_tokens=25)
-    if not r or len(r) > len(titulo) * 3:
-        r = titulo
+    if not r or len(r) > len(titulo) * 3: r = titulo
     st.session_state[k] = r
     return r
-
-GENERO_ES = {
-    "fantasy": "Fantasía", "thriller": "Thriller", "mystery": "Misterio",
-    "romance": "Romance", "horror": "Terror", "science fiction": "Ciencia Ficción",
-    "science+fiction": "Ciencia Ficción", "fiction": "Ficción",
-    "literary fiction": "Ficción Literaria", "contemporary": "Contemporáneo",
-    "historical fiction": "Ficción Histórica", "historical+fiction": "Ficción Histórica",
-    "adventure": "Aventura", "young adult": "Jóvenes Adultos", "young+adult": "Jóvenes Adultos",
-    "history": "Historia", "philosophy": "Filosofía", "psychology": "Psicología",
-    "biography": "Biografía", "business": "Negocios", "memoir": "Memorias",
-    "self help": "Autoayuda", "self-help": "Autoayuda", "science": "Ciencia",
-    "true crime": "Crimen Real", "true+crime": "Crimen Real",
-    "detective": "Detective", "suspense": "Suspenso", "crime": "Crimen",
-}
-
-def genero_es(g):
-    if not g or pd.isna(g): return "—"
-    return GENERO_ES.get(str(g).strip().lower(), str(g).title())
 
 def _mejor_libro_de_genero(genero, pool_df, scores, excluir_autores):
     candidatos = pool_df[
@@ -460,12 +474,103 @@ def generar_explicacion(libro, pref):
     except:
         return f"Este libro es ideal para tu interés en {genero_libro}."
 
+# ══════════════════════════════════════════════════════════════════════════
+#  MI LISTA — Panel flotante en sidebar
+# ══════════════════════════════════════════════════════════════════════════
+def guardar_libro(book_id):
+    if book_id not in st.session_state.mi_lista:
+        st.session_state.mi_lista.append(book_id)
+
+def quitar_libro(book_id):
+    if book_id in st.session_state.mi_lista:
+        st.session_state.mi_lista.remove(book_id)
+
+def esta_guardado(book_id):
+    return book_id in st.session_state.mi_lista
+
+def mostrar_sidebar_lista():
+    with st.sidebar:
+        if LOGO_B64:
+            st.markdown(
+                f'<img src="data:image/png;base64,{LOGO_B64}" height="36" style="margin-bottom:1rem">',
+                unsafe_allow_html=True)
+
+        n = len(st.session_state.mi_lista)
+        st.markdown(f"### 📚 Mi lista &nbsp; `{n}`")
+        st.divider()
+
+        if n == 0:
+            st.markdown(
+                '<p style="color:#6b7280;font-size:0.85rem;">'
+                'Guarda libros desde las recomendaciones o el catálogo '
+                'para verlos aquí.</p>',
+                unsafe_allow_html=True)
+            return
+
+        for bid in st.session_state.mi_lista:
+            ldf = _libros_reset[_libros_reset['book_id'] == bid]
+            if ldf.empty: continue
+            libro = ldf.iloc[0]
+
+            with st.container():
+                col_img, col_info = st.columns([1, 2])
+                with col_img:
+                    mostrar_portada(
+                        libro.get('portada_url'),
+                        libro.get('genero'),
+                        use_container_width=True)
+                with col_info:
+                    t = titulo_en_espanol(limpiar_texto(str(libro['titulo'])))
+                    st.markdown(
+                        f'<div style="font-weight:700;font-size:0.82rem;'
+                        f'line-height:1.3;margin-bottom:0.3rem">{t}</div>',
+                        unsafe_allow_html=True)
+                    st.markdown(
+                        f'<div style="color:#9ca3af;font-size:0.76rem;'
+                        f'margin-bottom:0.3rem">{limpiar_texto(libro["autor"])}</div>',
+                        unsafe_allow_html=True)
+                    pags = libro.get('paginas')
+                    p    = int(pags) if pd.notna(pags) else "—"
+                    st.markdown(
+                        f'<div style="color:#6b7280;font-size:0.74rem">'
+                        f'{genero_es(libro.get("genero"))} · {p} págs · {get_ano(libro)}</div>',
+                        unsafe_allow_html=True)
+
+                    desc = str(libro['descripcion']) if pd.notna(libro.get('descripcion')) else ""
+                    if desc:
+                        with st.expander("Descripción"):
+                            with st.spinner("Traduciendo..."):
+                                st.write(traducir_descripcion(desc))
+
+                    if st.button("✕ Quitar", key=f"quitar_{bid}", use_container_width=True):
+                        quitar_libro(bid)
+                        st.rerun()
+
+                st.divider()
+
+# ══════════════════════════════════════════════════════════════════════════
+#  SESSION STATE
+# ══════════════════════════════════════════════════════════════════════════
 for k, v in [('pagina','home'),('preferencias',{}),('recomendaciones',None),
              ('libro_seleccionado',None),('carousel_offset',0),
-             ('ids_mostrados',set()),('autores_mostrados',set()),('agotado',False)]:
+             ('ids_mostrados',set()),('autores_mostrados',set()),
+             ('agotado',False),('mi_lista',[])]:
     if k not in st.session_state: st.session_state[k] = v
 
 LIBROS_POR_PAG = 5
+
+# ══════════════════════════════════════════════════════════════════════════
+#  PÁGINAS
+# ══════════════════════════════════════════════════════════════════════════
+def boton_guardar(book_id, key_suffix=""):
+    if esta_guardado(book_id):
+        if st.button("✓ Guardado", key=f"saved_{book_id}_{key_suffix}", use_container_width=True):
+            quitar_libro(book_id)
+            st.rerun()
+    else:
+        if st.button("+ Mi lista", key=f"save_{book_id}_{key_suffix}", use_container_width=True):
+            guardar_libro(book_id)
+            st.rerun()
 
 def mostrar_home():
     top_libros = (_libros_reset.copy()
@@ -524,6 +629,7 @@ def mostrar_home():
             if st.button("Ver más", key=f"h_{libro['book_id']}", use_container_width=True):
                 st.session_state.libro_seleccionado = libro['book_id']
                 st.session_state.pagina = 'detalle'; st.rerun()
+            boton_guardar(libro['book_id'], key_suffix="home")
 
     with col_next:
         st.markdown('<div class="arrow-btn">', unsafe_allow_html=True)
@@ -546,15 +652,18 @@ def mostrar_catalogo():
 
     c1, c2, c3 = st.columns(3)
     with c1:
-        generos_es_lista = sorted(set(genero_es(g) for g in _libros_reset['genero'].dropna().unique()))
+        # Géneros directo del CSV, traducidos al español
+        generos_es_lista = sorted(set(
+            genero_es(g) for g in GENEROS_DISPONIBLES
+            if genero_es(g) != "—"
+        ))
         gf = st.selectbox("Género", ["Todos"] + generos_es_lista)
     with c2: ab = st.text_input("Buscar por autor")
     with c3: tb = st.text_input("Buscar por título")
 
     df = _libros_reset.copy()
     if gf != "Todos":
-        gen_inv  = {v: k for k, v in GENERO_ES.items()}
-        gen_orig = gen_inv.get(gf, gf)
+        gen_orig = GENERO_ES_INV.get(gf, gf)
         df = df[df['genero'] == gen_orig]
     if ab: df = df[df['autor'].str.contains(ab, case=False, na=False)]
     if tb: df = df[df['titulo'].str.contains(tb, case=False, na=False)]
@@ -574,6 +683,7 @@ def mostrar_catalogo():
             if st.button("Ver detalle", key=f"cat_{libro.book_id}", use_container_width=True):
                 st.session_state.libro_seleccionado = libro.book_id
                 st.session_state.pagina = 'detalle'; st.rerun()
+            boton_guardar(libro.book_id, key_suffix="cat")
 
 
 def mostrar_detalle():
@@ -595,6 +705,7 @@ def mostrar_detalle():
     c1, c2 = st.columns([1,2])
     with c1:
         mostrar_portada(libro.get('portada_url'), libro.get('genero'), width=280)
+        boton_guardar(bid, key_suffix="detalle")
     with c2:
         st.markdown(f"## {titulo_en_espanol(limpiar_texto(libro['titulo']))}")
         st.markdown(f"**{limpiar_texto(libro['autor'])}**")
@@ -633,27 +744,41 @@ def mostrar_preguntas():
         tl = st.radio("hab", [
             "Soy nuevo en la lectura", "Leo ocasionalmente", "Leo con frecuencia"
         ], label_visibility="collapsed")
+
         st.markdown("### ¿De qué época prefieres los libros?")
         ep = st.radio("ep", [
             "Clásicos (antes del 2000)", "Contemporáneos (2000-2015)",
             "Recientes (últimos años)", "No tengo preferencia"
         ], label_visibility="collapsed")
+
         st.markdown("### ¿Qué extensión de libro prefieres?")
         pg = st.radio("pg", [
             "No me importa la extensión", "Cortos (menos de 300 páginas)",
             "Medianos (300-500 páginas)", "Largos (más de 500 páginas)",
         ], label_visibility="collapsed")
+
         st.markdown("### ¿Qué géneros te interesan? (elige al menos 2)")
+
+        # Géneros leídos dinámicamente del CSV
+        generos_ficcion = [g for g in GENEROS_DISPONIBLES
+                           if genero_es(g) in ["Fantasía","Thriller","Misterio","Romance",
+                                               "Terror","Ciencia Ficción","Aventura","Crimen",
+                                               "Detective","Suspenso","Ficción Histórica",
+                                               "Jóvenes Adultos","Contemporáneo","Ficción"]]
+        generos_nofic   = [g for g in GENEROS_DISPONIBLES
+                           if g not in generos_ficcion]
+
         gc1, gc2 = st.columns(2)
         gs = []
         with gc1:
             st.markdown("**Ficción**")
-            for g in ['fantasy','thriller','mystery','romance','horror','science+fiction']:
+            for g in generos_ficcion:
                 if st.checkbox(genero_es(g), key=f"g_{g}"): gs.append(g)
         with gc2:
             st.markdown("**No Ficción**")
-            for g in ['history','philosophy','psychology','biography','business','memoir']:
+            for g in generos_nofic:
                 if st.checkbox(genero_es(g), key=f"g_{g}"): gs.append(g)
+
         st.markdown("### ¿Qué tipo de libros buscas?")
         po = st.radio("po", [
             "Bestsellers y libros populares",
@@ -720,6 +845,7 @@ def mostrar_resultados():
             t = titulo_en_espanol(str(libro.titulo))
             st.markdown(f'<div class="poster-title">{t[:32]}{"…" if len(t)>32 else ""}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="poster-author">{limpiar_texto(libro.autor)}</div>', unsafe_allow_html=True)
+            boton_guardar(libro.book_id, key_suffix=f"res_{idx}")
             with st.expander("Ver detalle"):
                 pags = getattr(libro, 'paginas', None)
                 p    = int(pags) if pags is not None and pd.notna(pags) else "—"
@@ -756,6 +882,7 @@ def mostrar_resultados():
 
 
 def main():
+    mostrar_sidebar_lista()
     p = st.session_state.pagina
     if   p == 'home':       mostrar_home()
     elif p == 'catalogo':   mostrar_catalogo()
