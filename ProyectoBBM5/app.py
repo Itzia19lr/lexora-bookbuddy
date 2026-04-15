@@ -64,73 +64,33 @@ def limpiar_texto(texto):
 def limpiar_descripcion_legal(texto):
     if not texto or pd.isna(texto):
         return texto
+    import re
     texto = str(texto)
-    # Marcadores que indican inicio de texto legal — cortamos ahí
-    marcadores = [
+    marcadores_corte = [
         'Copyright ©', 'copyright ©', 'Derechos de autor ©',
         'derechos de autor ©', '© Libri', '© libri',
         'Libri GmbH', 'libri gmbh',
-        'All rights reserved', 'Todos los derechos reservados',
-        'Derechos reservados',
-        '- Sitio web del editor', '- sitio web del editor',
-        "- Publisher's website", '- From the publisher',
-        '- Del editor',
+        'All rights reserved', 'All Rights Reserved',
+        'Todos los derechos reservados', 'Derechos reservados',
+        '- Sitio web del editor', '-- Sitio web del editor',
+        '--Publisher', '-- Publisher', '- Publisher',
+        '--Back cover', '-- Back cover', '-Back cover',
+        '--back cover', '-- back cover',
+        '- From the publisher', '- Del editor', '- del editor',
+        'Get your copy', 'get your copy',
+        '¡Consigue tu copia', '¡consigue tu copia',
+        'Order now', 'Buy now', 'Compra ahora',
     ]
-    for m in marcadores:
+    for m in marcadores_corte:
         idx = texto.find(m)
         if idx != -1:
             texto = texto[:idx].strip().rstrip('.')
             if texto:
                 texto = texto + '.'
+    texto = re.sub(r'\d+\s*(?:\d+/\d+)?\s*[xX]\s*\d+\s*(?:\d+/\d+)?', '', texto)
+    texto = re.sub(r'^Annotation\s*["\']?', '', texto, flags=re.IGNORECASE)
+    texto = re.sub(r'  +', ' ', texto)
     return texto.strip()
-
-COLORES_GENERO = {
-    "fantasy":            {"bg": "#2d1b69", "accent": "#a78bfa", "label": "Fantasía"},
-    "thriller":           {"bg": "#111111", "accent": "#ef4444", "label": "Thriller"},
-    "mystery":            {"bg": "#1f2937", "accent": "#60a5fa", "label": "Misterio"},
-    "romance":            {"bg": "#9f1239", "accent": "#fda4af", "label": "Romance"},
-    "horror":             {"bg": "#0a0a0a", "accent": "#ff4d4d", "label": "Terror"},
-    "science fiction":    {"bg": "#0f172a", "accent": "#38bdf8", "label": "Ciencia Ficción"},
-    "science+fiction":    {"bg": "#0f172a", "accent": "#38bdf8", "label": "Ciencia Ficción"},
-    "fiction":            {"bg": "#1e3a5f", "accent": "#93c5fd", "label": "Ficción"},
-    "literary fiction":   {"bg": "#1e3a5f", "accent": "#93c5fd", "label": "Ficción Literaria"},
-    "contemporary":       {"bg": "#0f3460", "accent": "#e94560", "label": "Contemporáneo"},
-    "historical fiction": {"bg": "#44271f", "accent": "#f59e0b", "label": "Ficción Histórica"},
-    "historical+fiction": {"bg": "#44271f", "accent": "#f59e0b", "label": "Ficción Histórica"},
-    "adventure":          {"bg": "#14532d", "accent": "#4ade80", "label": "Aventura"},
-    "young adult":        {"bg": "#4a1d96", "accent": "#f0abfc", "label": "Jóvenes Adultos"},
-    "young+adult":        {"bg": "#4a1d96", "accent": "#f0abfc", "label": "Jóvenes Adultos"},
-    "history":            {"bg": "#78350f", "accent": "#fcd34d", "label": "Historia"},
-    "philosophy":         {"bg": "#334155", "accent": "#94a3b8", "label": "Filosofía"},
-    "psychology":         {"bg": "#4c1d95", "accent": "#c4b5fd", "label": "Psicología"},
-    "biography":          {"bg": "#374151", "accent": "#d1d5db", "label": "Biografía"},
-    "business":           {"bg": "#064e3b", "accent": "#6ee7b7", "label": "Negocios"},
-    "memoir":             {"bg": "#7c2d12", "accent": "#fdba74", "label": "Memorias"},
-    "self help":          {"bg": "#065f46", "accent": "#34d399", "label": "Autoayuda"},
-    "self-help":          {"bg": "#065f46", "accent": "#34d399", "label": "Autoayuda"},
-    "science":            {"bg": "#0c4a6e", "accent": "#38bdf8", "label": "Ciencia"},
-    "true crime":         {"bg": "#1a1a2e", "accent": "#e94560", "label": "Crimen Real"},
-    "true+crime":         {"bg": "#1a1a2e", "accent": "#e94560", "label": "Crimen Real"},
-    "detective":          {"bg": "#1f2937", "accent": "#60a5fa", "label": "Detective"},
-    "suspense":           {"bg": "#111827", "accent": "#f87171", "label": "Suspenso"},
-    "crime":              {"bg": "#1a1a2e", "accent": "#e94560", "label": "Crimen"},
-}
-COLOR_FALLBACK = {"bg": "#1e293b", "accent": "#94a3b8", "label": "Libro"}
-
-GENERO_ES = {
-    "fantasy": "Fantasía", "thriller": "Thriller", "mystery": "Misterio",
-    "romance": "Romance", "horror": "Terror", "science fiction": "Ciencia Ficción",
-    "science+fiction": "Ciencia Ficción", "fiction": "Ficción",
-    "literary fiction": "Ficción Literaria", "contemporary": "Contemporáneo",
-    "historical fiction": "Ficción Histórica", "historical+fiction": "Ficción Histórica",
-    "adventure": "Aventura", "young adult": "Jóvenes Adultos", "young+adult": "Jóvenes Adultos",
-    "history": "Historia", "philosophy": "Filosofía", "psychology": "Psicología",
-    "biography": "Biografía", "business": "Negocios", "memoir": "Memorias",
-    "self help": "Autoayuda", "self-help": "Autoayuda", "science": "Ciencia",
-    "true crime": "Crimen Real", "true+crime": "Crimen Real",
-    "detective": "Detective", "suspense": "Suspenso", "crime": "Crimen",
-}
-GENERO_ES_INV = {v: k for k, v in GENERO_ES.items()}
 
 def genero_es(g):
     if not g or pd.isna(g): return "—"
