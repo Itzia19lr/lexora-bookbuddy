@@ -739,13 +739,19 @@ def mostrar_detalle():
     labels = {'home': 'Inicio', 'catalogo': 'Catálogo', 'mi_lista': 'Mi lista', 'resultados': 'Recomendaciones'}
     label_volver = f"← {labels.get(pagina_anterior, 'Inicio')}"
 
-    cb, cb2, _ = st.columns([1.2, 1.2, 5])
-    with cb:
-        if st.button(label_volver, use_container_width=True):
-            st.session_state.pagina = pagina_anterior; st.rerun()
-    with cb2:
-        if st.button("Inicio", use_container_width=True):
-            st.session_state.pagina = 'home'; st.rerun()
+    if pagina_anterior == 'home':
+        cb, _ = st.columns([1.2, 7])
+        with cb:
+            if st.button("← Inicio", use_container_width=True):
+                st.session_state.pagina = 'home'; st.rerun()
+    else:
+        cb, cb2, _ = st.columns([1.4, 1.2, 5])
+        with cb:
+            if st.button(label_volver, use_container_width=True):
+                st.session_state.pagina = pagina_anterior; st.rerun()
+        with cb2:
+            if st.button("Inicio", use_container_width=True):
+                st.session_state.pagina = 'home'; st.rerun()
     c1,c2 = st.columns([1,2])
     with c1:
         mostrar_portada(libro.get('portada_url'),libro.get('genero'),width=280)
