@@ -92,6 +92,21 @@ def limpiar_descripcion_legal(texto):
     texto = re.sub(r'  +', ' ', texto)
     return texto.strip()
 
+GENERO_ES = {
+    "fantasy": "Fantasía", "thriller": "Thriller", "mystery": "Misterio",
+    "romance": "Romance", "horror": "Terror", "science fiction": "Ciencia Ficción",
+    "science+fiction": "Ciencia Ficción", "fiction": "Ficción",
+    "literary fiction": "Ficción Literaria", "contemporary": "Contemporáneo",
+    "historical fiction": "Ficción Histórica", "historical+fiction": "Ficción Histórica",
+    "adventure": "Aventura", "young adult": "Jóvenes Adultos", "young+adult": "Jóvenes Adultos",
+    "history": "Historia", "philosophy": "Filosofía", "psychology": "Psicología",
+    "biography": "Biografía", "business": "Negocios", "memoir": "Memorias",
+    "self help": "Autoayuda", "self-help": "Autoayuda", "science": "Ciencia",
+    "true crime": "Crimen Real", "true+crime": "Crimen Real",
+    "detective": "Detective", "suspense": "Suspenso", "crime": "Crimen",
+}
+GENERO_ES_INV = {v: k for k, v in GENERO_ES.items()}
+
 def genero_es(g):
     if not g or pd.isna(g): return "—"
     return GENERO_ES.get(str(g).strip().lower(), str(g).title())
